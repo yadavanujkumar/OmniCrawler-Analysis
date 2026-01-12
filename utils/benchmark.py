@@ -80,7 +80,7 @@ class BenchmarkEngine:
             
             scores[crawler] = score
         
-        # Find winner
+        # Find winner (note: if there are ties, returns one arbitrarily)
         winner = max(scores.items(), key=lambda x: x[1])
         
         # Generate reasoning
@@ -157,13 +157,13 @@ class BenchmarkEngine:
             if successful_times:
                 sorted_by_speed = sorted(successful_times, key=lambda x: x[1])
                 speed_ranks = {crawler: idx + 1 for idx, (crawler, _) in enumerate(sorted_by_speed)}
-                df['Speed Rank'] = df['Crawler'].map(lambda x: speed_ranks.get(x, '-'))
+                df['Speed Rank'] = df['Crawler'].map(speed_ranks).fillna('-')
             
             quality_scores = [(r.crawler_type, r.get_structural_quality_score()) for r in self.results if r.success]
             if quality_scores:
                 sorted_by_quality = sorted(quality_scores, key=lambda x: x[1], reverse=True)
                 quality_ranks = {crawler: idx + 1 for idx, (crawler, _) in enumerate(sorted_by_quality)}
-                df['Quality Rank'] = df['Crawler'].map(lambda x: quality_ranks.get(x, '-'))
+                df['Quality Rank'] = df['Crawler'].map(quality_ranks).fillna('-')
         
         # Add recommendations
         def get_recommendation(row):

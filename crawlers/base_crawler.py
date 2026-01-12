@@ -6,6 +6,10 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass
 import time
 
+# Constants
+HTML_CHECK_LENGTH = 100  # Number of characters to check at start of content
+MIN_CONTENT_LENGTH = 100  # Minimum content length for valid data
+
 
 @dataclass
 class CrawlResult:
@@ -26,7 +30,7 @@ class CrawlResult:
             return True
         if self.status_code and self.status_code in [403, 429, 503]:
             return True
-        if not self.content or len(self.content.strip()) < 100:
+        if not self.content or len(self.content.strip()) < MIN_CONTENT_LENGTH:
             return True
         if "blocked" in self.content.lower()[:500] or "captcha" in self.content.lower()[:500]:
             return True
@@ -51,7 +55,7 @@ class CrawlResult:
             score += 15
         
         # Penalize raw HTML
-        if '<html' in self.content[:100].lower():
+        if '<html' in self.content[:HTML_CHECK_LENGTH].lower():
             score -= 10
         
         return min(100.0, max(0.0, score))
